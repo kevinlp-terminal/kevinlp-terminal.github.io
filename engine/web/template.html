@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KEVIN LP | UK M&amp;A Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#000;--panel:#0d0d0d;--line:#2e2e2e;--amber:#ffb000;--orange:#ff8c00;--cyan:#5fd7ff;--green:#00e676;--red:#ff5252;--grey:#8a8a8a;--white:#f2f2f2}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--amber);font:13px/1.45 "IBM Plex Mono",Consolas,monospace}
+a{color:var(--cyan)}
+.bar{display:flex;align-items:center;gap:16px;background:var(--orange);color:#000;font-weight:700;padding:4px 12px;flex-wrap:wrap}
+.bar .sp{flex:1}
+.sub{color:var(--grey);padding:4px 12px;font-size:12px;border-bottom:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap}
+.cmd{display:flex;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);align-items:center;flex-wrap:wrap}
+.cmd input{background:#111;border:1px solid var(--line);color:var(--white);font:inherit;padding:5px 8px;width:300px;text-transform:uppercase}
+.fk{background:#1a1a1a;border:1px solid var(--line);color:var(--amber);font:inherit;padding:4px 9px;cursor:pointer}
+.fk b{color:var(--white)}
+.fk.on{background:var(--amber);color:#000}.fk.on b{color:#000}
+.fk:hover{border-color:var(--amber)}
+.btn{background:#1a1a1a;border:1px solid var(--cyan);color:var(--cyan);font:inherit;padding:4px 10px;cursor:pointer}
+.btn:hover{background:#0d2a33}
+main{padding:12px}
+h2{font-size:13px;margin:16px 0 6px;color:var(--orange);letter-spacing:.06em}
+h2:first-child{margin-top:0}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+@media(max-width:1000px){.g2{grid-template-columns:1fr}}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.tile{background:var(--panel);border:1px solid var(--line);padding:8px 10px}
+.tile .l{color:var(--grey);font-size:11px}
+.tile .v{color:var(--green);font-size:20px;font-weight:700}
+table{border-collapse:collapse;width:100%}
+th{background:var(--orange);color:#000;text-align:left;padding:3px 6px;font-weight:700;white-space:nowrap;cursor:default}
+th.s{cursor:pointer}
+td{padding:3px 6px;border-bottom:1px solid #1c1c1c;white-space:nowrap;vertical-align:top}
+td.w{white-space:normal;min-width:240px}
+tr.click{cursor:pointer}tr.click:hover td{background:#141414}
+tr.sel td{background:#1d1600}
+.r{text-align:right}
+.c{color:var(--cyan)}.g{color:var(--green)}.gr{color:var(--grey)}.wh{color:var(--white)}.rd{color:var(--red)}
+.badge{display:inline-block;padding:0 6px;font-weight:700;color:#fff;text-align:center;white-space:nowrap}
+.RED{background:#8b0000}.AMBER{background:#7a5200}.GREEN{background:#00501c}.ABOVE{background:#003c78}.NODATA{background:#333}
+.stale{background:#4a2500}
+.box{background:var(--panel);border:1px solid var(--line);padding:10px}
+.form{display:grid;grid-template-columns:auto 160px;gap:6px 12px;align-items:center}
+.form input,.form select,.flt select,.flt input{background:#111;border:1px solid var(--line);color:var(--cyan);font:inherit;padding:3px 6px}
+.flt{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.note{color:var(--grey);font-size:12px}
+.scroll{overflow-x:auto}
+.kv{display:grid;grid-template-columns:200px 1fr;gap:3px 12px}
+#hdet svg{max-width:720px}
+.kv div:nth-child(odd){color:var(--grey)}
+details.th summary{cursor:pointer;color:var(--orange);margin-bottom:6px}
+.about{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--orange);padding:10px 12px;margin-bottom:12px;line-height:1.6;max-width:1100px}
+@media(max-width:700px){.hm{display:none}.badge{font-size:10px;padding:0 4px}html,body{font-size:12px}.cmd input{width:100%}.fk{padding:4px 6px}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile .v{font-size:16px}main{padding:8px}.bar{font-size:12px}.kv{grid-template-columns:130px 1fr}.form{grid-template-columns:auto 120px}}
+code{color:var(--white);background:#111;padding:2px 6px;border:1px solid var(--line);display:inline-block;white-space:pre-wrap;word-break:break-all}
+.msg{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="bar"><span>KEVIN LP &nbsp;|&nbsp; UK M&amp;A TERMINAL</span><span class="sp"></span><span id="clock"></span></div>
+<div class="sub"><span id="src"></span><span>UK PUBLIC TAKEOVERS</span><span>NOT INVESTMENT ADVICE</span></div>
+<div class="cmd">
+  <input id="cmdin" placeholder="TYPE FUNCTION + ENTER" autocomplete="off" aria-label="Command">
+  <span id="fks"></span>
+  <label class="btn" for="file" title="Load your own copy of the KEVIN LP workbook">LOAD XLSX</label><input id="file" type="file" accept=".xlsx" hidden>
+</div>
+<main id="main"></main>
+<script>
+const SNAP = __SNAPSHOT__;
+const FUNCS=[["MENU","Home screen"],["DEAL","Deal database"],["COMP","Precedents"],["PREM","Premium calculator"],["LIVE","Live tracker"],["HLTH","Deal health"],["PX","Price log"],["HELP","Help"]];
+let S={}; let view="menu"; let sel={deal:null,hlth:null}; let sortDeal={k:"date27",d:-1}; let compF={sector:"All",type:"All",status:"All",min:0,max:100000};
+let calc={name:"Example plc",und:400,v1:390,v3:375,offer:560,shares:250,debt:150,sector:"Energy"};
+let TH={as:.05,rs:.10,az:1,rz:2,ap:.85,rp:.70,st:7};
+let newPx=[];
+
+const D=s=>{if(!s)return null;if(s instanceof Date)return new Date(s.getFullYear(),s.getMonth(),s.getDate());const d=new Date(String(s).slice(0,10)+"T00:00:00");return isNaN(d)?null:d};
+const today=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())};
+const days=(a,b)=>Math.round((a-b)/864e5);
+const MON=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const fd=d=>d?String(d.getDate()).padStart(2,"0")+"-"+MON[d.getMonth()]+"-"+String(d.getFullYear()).slice(2):"";
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const isn=x=>typeof x==="number"&&isFinite(x);
+const pct=(x,dp=1)=>isn(x)?(x<0?"("+(-x*100).toFixed(dp)+"%)":(x*100).toFixed(dp)+"%"):"";
+const num=(x,dp=0)=>isn(x)?x.toLocaleString("en-GB",{minimumFractionDigits:dp,maximumFractionDigits:dp}):"";
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const median=a=>{a=a.filter(isn).sort((x,y)=>x-y);if(!a.length)return null;const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2};
+const mean=a=>{a=a.filter(isn);return a.length?a.reduce((s,x)=>s+x,0)/a.length:null};
+
+function loadSnapshot(){
+  S={deals:SNAP.deals.map(x=>({...x,op_start:D(x.op_start),date27:D(x.date27)})),
+     prices:SNAP.prices.map(p=>({...p,date:D(p.date)})),
+     exp:Object.fromEntries(Object.entries(SNAP.exp_close).map(([k,v])=>[k,D(v)])),
+     fb:{...SNAP.fallback},notes:{...SNAP.health_notes},
+     miles:Object.fromEntries(SNAP.deals.map(x=>[x.id,(SNAP.milestones||{})[x.target]||""])),
+     watch:SNAP.watch,sectors:SNAP.sectors,offerOv:{...(SNAP.offer_override||{})}};
+  setSrc();
+}
+function setSrc(label){const lp=S.prices.reduce((m,p)=>p.date>m?p.date:m,new Date(0));
+  document.getElementById("src").textContent=(label?label+" | ":"")+"PRICES TO "+(+lp?fd(lp):"-")+(SNAP.built&&!label?" | UPDATED "+fd(D(SNAP.built.slice(0,10)))+" "+SNAP.built.slice(11):"");}
+function premOf(d){const c=isn(d.price)&&isn(d.undisturbed)&&d.undisturbed>0?d.price/d.undisturbed-1:null;return {calc:c,an:isn(c)?c:(isn(d.rep_prem)?d.rep_prem:null)}}
+const byId=id=>S.deals.find(d=>d.id===id);
+const live=()=>S.deals.filter(d=>d.status==="Pending");
+
+function health(d){
+  const ps=S.prices.filter(p=>p.id===d.id&&isn(p.price)&&p.price>0&&p.date).sort((a,b)=>a.date-b.date);
+  const offer=isn(S.offerOv[d.id])?S.offerOv[d.id]:d.total;
+  const fb=isn(S.fb[d.id])?S.fb[d.id]:(isn(d.undisturbed)?d.undisturbed:null);
+  const close=S.exp[d.id]||null;
+  const h={d,offer,fb,close,n:ps.length,hist:ps.map(p=>({date:p.date,s:offer/p.price-1}))};
+  if(!ps.length){h.status="NO DATA";h.diag="No prices logged yet - add one in PX.";return h}
+  const ld=ps[ps.length-1].date;const same=ps.filter(p=>+p.date===+ld);
+  h.date=ld;h.px=mean(same.map(p=>p.price));h.age=days(today(),ld);h.spread=offer/h.px-1;
+  h.ann=close&&days(close,ld)>0?h.spread*365/days(close,ld):null;
+  h.prob=isn(fb)&&offer-fb>0?(h.px-fb)/(offer-fb):null;
+  const sp=h.hist.map(x=>x.s);h.avg=mean(sp);
+  if(sp.length>=3){const sd=Math.sqrt(sp.reduce((s,x)=>s+(x-h.avg)**2,0)/(sp.length-1));h.z=sd>0?(h.spread-h.avg)/sd:null}
+  const z=h.z,p=h.prob,s=h.spread;
+  h.status=s<0?"ABOVE OFFER":(s>=TH.rs||(isn(z)&&z>=TH.rz)||(isn(p)&&p<TH.rp))?"RED":(s>=TH.as||(isn(z)&&z>=TH.az)||(isn(p)&&p<TH.ap))?"AMBER":"GREEN";
+  let g=s<0?"Trading above the offer: market expects a higher or rival bid.":(isn(z)&&z>=TH.rz)?"Spread far wider than its own history: check for regulatory, financing or shareholder news.":s>=TH.rs?"Wide spread: market doubts the deal completes on these terms or on time.":(isn(p)&&p<TH.rp)?"Low implied completion probability.":(s>=TH.as||(isn(z)&&z>=TH.az))?"Spread above normal - monitor closely.":"Trading in line with a deal expected to complete.";
+  h.diag=(h.age>TH.st?"Stale price ("+h.age+" days old) - update. ":"")+g;return h;
+}
+const badge=s=>`<span class="badge ${s.replace(" OFFER","").replace(" ","")}">${s}</span>`;
+
+/* ---------------- views ---------------- */
+function vMenu(){
+  const pr=S.deals.map(d=>premOf(d).an), lv=live(), hs=lv.map(health);
+  const tiles=[["DEALS IN DATABASE",S.deals.length],["MEDIAN PREMIUM",pct(median(pr))],["LIVE DEALS",lv.length],
+   ["RED / AMBER",hs.filter(h=>h.status==="RED").length+" / "+hs.filter(h=>h.status==="AMBER").length],
+   ["PRIVATE EQUITY SHARE",pct(S.deals.filter(d=>d.type==="Private equity").length/S.deals.length)],
+   ["TOTAL EQUITY VALUE",num(S.deals.reduce((s,d)=>s+(d.equity||0),0)/1000,1)+" BN"]];
+  const top=S.deals.map(d=>({d,p:premOf(d).an})).filter(x=>isn(x.p)).sort((a,b)=>b.p-a.p).slice(0,5);
+  const sec=S.sectors.map(s=>{const v=S.deals.filter(d=>d.sector===s).map(d=>premOf(d).an).filter(isn);return [s,v.length,mean(v)]});
+  const nWatch=S.watch.length;
+  return `<div class="about"><b>KEVIN LP</b> tracks every UK public takeover under the Takeover Code: ${S.deals.length} firm offers in 2026, ${lv.length} still live, ${nWatch} companies on the watchlist. It benchmarks bid premiums, monitors whether the market expects each live deal to complete, and flags new situations daily. <span class="gr">Built by Kevin Sutan. Data from Rule 2.7 announcements and market prices; not investment advice.</span><br><span class="c">Start with HLTH (deal health), COMP (precedents) or PREM (premium calculator).</span></div>
+  <h2>HEADLINES</h2><div class="tiles">${tiles.map(t=>`<div class="tile"><div class="l">${t[0]}</div><div class="v">${t[1]}</div></div>`).join("")}</div>
+  <div class="grid g2"><div><h2>LIVE DEAL MONITOR &nbsp;<span class="gr">(HLTH)</span></h2><div class="scroll"><table><tr><th class="hm">ID</th><th>TARGET</th><th class="hm">BIDDER</th><th class="r">SPREAD</th><th class="r">PROB</th><th class="r hm">PX AGE</th><th>HEALTH</th></tr>
+  ${hs.map(h=>`<tr class="click" data-go="hlth" data-id="${h.d.id}"><td class="hm">${h.d.id}</td><td class="wh">${esc(h.d.target)}</td><td class="hm">${esc(h.d.bidder)}</td><td class="r">${pct(h.spread)}</td><td class="r">${pct(h.prob,0)}</td><td class="r hm ${h.age>TH.st?"stale":""}">${h.age??""}</td><td>${badge(h.status)}</td></tr>`).join("")}</table></div></div>
+  <div><h2>BIGGEST PREMIUMS</h2><table><tr><th>#</th><th>TARGET</th><th>BIDDER</th><th class="r">PREMIUM</th></tr>${top.map((x,i)=>`<tr class="click" data-go="deal" data-id="${x.d.id}"><td>${i+1}</td><td class="wh">${esc(x.d.target)}</td><td>${esc(x.d.bidder)}</td><td class="r g">${pct(x.p)}</td></tr>`).join("")}</table>
+  <h2>SECTOR AVERAGE PREMIUM</h2><table><tr><th>SECTOR</th><th class="r">DEALS*</th><th class="r">AVG PREM</th></tr>${sec.map(s=>`<tr><td>${s[0]}</td><td class="r">${s[1]}</td><td class="r">${pct(s[2])}</td></tr>`).join("")}</table><div class="note">* deals with a usable premium figure</div>
+  <h2>FUNCTIONS</h2><table>${FUNCS.slice(1).map(f=>`<tr class="click" data-go="${f[0].toLowerCase()}"><td class="c">${f[0]} &lt;GO&gt;</td><td>${f[1]}</td></tr>`).join("")}</table></div></div>`;
+}
+function vDeal(){
+  const cols=[["id","ID"],["target","TARGET"],["bidder","BIDDER"],["type","TYPE"],["sector","SECTOR"],["date27","RULE 2.7"],["price","OFFER (p)"],["undisturbed","UNDIST (p)"],["prem","PREMIUM"],["equity","EQUITY £M"],["competing","RIVAL"],["status","STATUS"]];const HM=new Set(["id","bidder","type","sector","date27","price","undisturbed","competing"]);
+  const q=(document.getElementById("dq")||{}).value||"";
+  let rows=S.deals.map(d=>({...d,prem:premOf(d).an})).filter(d=>!q||JSON.stringify(d).toLowerCase().includes(q.toLowerCase()));
+  rows.sort((a,b)=>{const x=a[sortDeal.k],y=b[sortDeal.k];if(x==null)return 1;if(y==null)return -1;return (x>y?1:x<y?-1:0)*sortDeal.d});
+  const d=sel.deal?byId(sel.deal):null;const p=d?premOf(d):null;
+  return `<div class="flt"><span>SEARCH</span><input id="dq" value="${esc(q)}" placeholder="target, bidder, sector..."><span class="note">Click a column to sort, a row for detail.</span></div>
+  <div class="grid ${d?"g2":""}"><div class="scroll"><table><tr>${cols.map(c=>`<th class="s ${HM.has(c[0])?"hm":""}" data-sort="${c[0]}">${c[1]}${sortDeal.k===c[0]?(sortDeal.d>0?" ▲":" ▼"):""}</th>`).join("")}</tr>
+  ${rows.map(r=>`<tr class="click ${sel.deal===r.id?"sel":""}" data-deal="${r.id}"><td class="hm">${r.id}</td><td class="wh">${esc(r.target)}</td><td class="hm">${esc(r.bidder)}</td><td class="hm">${r.type}</td><td class="hm">${r.sector}</td><td class="hm">${fd(r.date27)}</td><td class="r hm">${num(r.price,2)}</td><td class="r hm">${num(r.undisturbed,2)}</td><td class="r g">${pct(r.prem)}</td><td class="r">${num(r.equity,1)}</td><td class="hm">${r.competing}</td><td>${r.status}</td></tr>`).join("")}</table></div>
+  ${d?`<div class="box"><h2>${esc(d.target).toUpperCase()} &lt;EQUITY&gt;</h2><div class="kv">
+  <div>Bidder</div><div class="wh">${esc(d.bidder)} (${d.type}, ${esc(d.hq)})</div><div>Consideration</div><div>${esc(d.consideration)}</div>
+  <div>Offer period start</div><div>${fd(d.op_start)||"-"}</div><div>Rule 2.7 date</div><div>${fd(d.date27)}</div>
+  <div>Offer price / total value</div><div>${num(d.price,2)}p / ${num(d.total,2)}p</div><div>Undisturbed price</div><div>${num(d.undisturbed,2)||"not disclosed"}${d.undisturbed?"p":""}</div>
+  <div>Premium (calc / reported)</div><div>${pct(p.calc)||"-"} / ${pct(d.rep_prem)||"-"}</div><div>Premium to 3m VWAP</div><div>${pct(d.rep_vwap3m)||"-"}</div>
+  <div>Equity / EV (£m)</div><div>${num(d.equity,1)} / ${num(d.ev,1)||"-"}</div><div>Public proposals</div><div>${d.proposals??"-"}</div>
+  <div>Target advisers</div><div>${esc(d.target_fa)}</div><div>Bidder advisers</div><div>${esc(d.bidder_fa)}</div>
+  <div>Status</div><div class="wh">${d.status}</div><div>Bid history</div><div class="wh">${esc(d.note)}</div>
+  <div>Source</div><div>${d.source?`<a href="${esc(d.source)}" target="_blank" rel="noopener">${esc(d.source.replace(/^https?:\/\//,"").slice(0,60))}...</a>`:"-"}</div></div></div>`:""}</div>`;
+}
+function vComp(){
+  const f=compF;const rows=S.deals.filter(d=>(f.sector==="All"||d.sector===f.sector)&&(f.type==="All"||d.type===f.type)&&(f.status==="All"||d.status===f.status)&&(d.equity||0)>=f.min&&(d.equity||0)<=f.max).map(d=>({d,p:premOf(d).an}));
+  const v=rows.map(r=>r.p).filter(isn);const mx=Math.max(0.01,...v);
+  const opt=(arr,cur)=>arr.map(a=>`<option ${a===cur?"selected":""}>${a}</option>`).join("");
+  const W=520,rh=18,H=rows.length*rh+10;
+  const svg=`<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Premium by deal">${rows.map((r,i)=>{const w=isn(r.p)?r.p/mx*(W-260):0;return `<text x="0" y="${i*rh+13}" fill="#ffb000" font-size="11" font-family="IBM Plex Mono,monospace">${esc(r.d.target.slice(0,26))}</text><rect x="190" y="${i*rh+3}" width="${Math.max(w,0)}" height="12" fill="#ff8c00"/><text x="${196+Math.max(w,0)}" y="${i*rh+13}" fill="#f2f2f2" font-size="11" font-family="IBM Plex Mono,monospace">${isn(r.p)?pct(r.p):"n/a"}</text>`}).join("")}</svg>`;
+  return `<div class="flt"><span>SECTOR</span><select data-f="sector">${opt(["All",...S.sectors],f.sector)}</select><span>BIDDER</span><select data-f="type">${opt(["All","Trade","Private equity"],f.type)}</select><span>STATUS</span><select data-f="status">${opt(["All","Completed","Pending","Lapsed","Withdrawn"],f.status)}</select><span>EQUITY £M</span><input data-f="min" type="number" value="${f.min}" style="width:90px"> to <input data-f="max" type="number" value="${f.max}" style="width:100px"></div>
+  <div class="tiles"><div class="tile"><div class="l">DEALS MATCHING</div><div class="v">${rows.length}</div></div><div class="tile"><div class="l">MEDIAN PREMIUM</div><div class="v">${pct(median(v))||"n/a"}</div></div><div class="tile"><div class="l">MEAN PREMIUM</div><div class="v">${pct(mean(v))||"n/a"}</div></div><div class="tile"><div class="l">LOW / HIGH</div><div class="v">${v.length?pct(Math.min(...v),0)+" / "+pct(Math.max(...v),0):"n/a"}</div></div></div>
+  <div class="grid g2"><div class="scroll"><h2>PRECEDENT TRANSACTIONS</h2><table><tr><th>TARGET</th><th>BIDDER</th><th>TYPE</th><th>RULE 2.7</th><th class="r">OFFER (p)</th><th class="r">PREMIUM</th><th class="r">EQUITY £M</th><th>STATUS</th></tr>${rows.map(r=>`<tr class="click" data-go="deal" data-id="${r.d.id}"><td class="wh">${esc(r.d.target)}</td><td>${esc(r.d.bidder)}</td><td>${r.d.type}</td><td>${fd(r.d.date27)}</td><td class="r">${num(r.d.price,2)}</td><td class="r g">${pct(r.p)}</td><td class="r">${num(r.d.equity,1)}</td><td>${r.d.status}</td></tr>`).join("")}</table></div>
+  <div class="box"><h2>PREMIUM TO UNDISTURBED PRICE</h2>${svg}</div></div>`;
+}
+function vPrem(){
+  const c=calc,p0=c.offer/c.und-1,p1=c.offer/c.v1-1,p3=c.offer/c.v3-1,eq=c.offer*c.shares/100;
+  const all=S.deals.map(d=>premOf(d).an).filter(isn),secv=S.deals.filter(d=>d.sector===c.sector).map(d=>premOf(d).an).filter(isn);
+  const below=all.filter(x=>x<p0).length/all.length, med=median(all), smed=median(secv);
+  const inp=(k,l,step)=>`<div>${l}</div><input data-c="${k}" type="${k==="name"?"text":"number"}" step="${step||"any"}" value="${esc(c[k])}">`;
+  return `<div class="grid g2"><div class="box"><h2>INPUTS</h2><div class="form">${inp("name","Target name")}${inp("und","Undisturbed price (p)")}${inp("v1","1-month VWAP (p)")}${inp("v3","3-month VWAP (p)")}${inp("offer","Proposed offer price (p)")}${inp("shares","Fully diluted shares (m)")}${inp("debt","Net debt (£m)")}<div>Comparison sector</div><select data-c="sector">${S.sectors.map(s=>`<option ${s===c.sector?"selected":""}>${s}</option>`).join("")}</select></div>
+  <p class="note">Press Enter or click away to recalculate. Example values are a hypothetical company, not a real one.</p></div>
+  <div class="box"><h2>OUTPUTS - ${esc(c.name).toUpperCase()}</h2><div class="kv">
+  <div>Premium to undisturbed</div><div class="g">${pct(p0)}</div><div>Premium to 1m VWAP</div><div>${pct(p1)}</div><div>Premium to 3m VWAP</div><div>${pct(p3)}</div>
+  <div>Implied equity value</div><div>£${num(eq,1)}m</div><div>Implied enterprise value</div><div>£${num(eq+ +c.debt,1)}m</div>
+  <div>&nbsp;</div><div></div><div>Median premium, all deals</div><div>${pct(med)}</div><div>Deals with a lower premium</div><div class="wh">${pct(below,0)}</div>
+  <div>${esc(c.sector)} deals in database</div><div>${secv.length}</div><div>${esc(c.sector)} median premium</div><div>${pct(smed)||"n/a"}</div><div>Gap vs sector median</div><div>${isn(smed)?pct(p0-smed):"n/a"}</div>
+  <div>&nbsp;</div><div></div><div>Price at all-deal median</div><div>${num(c.und*(1+med),2)}p</div><div>Price at sector median</div><div>${isn(smed)?num(c.und*(1+smed),2)+"p":"n/a"}</div></div></div></div>`;
+}
+function vLive(){
+  const t=today();
+  return `<h2>PENDING FIRM OFFERS</h2><div class="scroll"><table><tr><th>TARGET</th><th>BIDDER</th><th>RULE 2.7</th><th class="r">DAYS SINCE</th><th>SCHEME DOC DUE</th><th class="r">EQUITY £M</th><th>NEXT MILESTONE (AS LAST REPORTED)</th></tr>
+  ${live().map(d=>{const due=new Date(d.date27.getTime()+28*864e5);const soon=days(due,t)>=0&&days(due,t)<=7;return `<tr><td class="wh">${esc(d.target)}</td><td>${esc(d.bidder)}</td><td>${fd(d.date27)}</td><td class="r">${days(t,d.date27)}</td><td class="${soon?"stale":""}">${fd(due)}</td><td class="r">${num(d.equity,1)}</td><td class="w">${esc(S.miles[d.id]||"")}</td></tr>`}).join("")}</table></div>
+  <h2>POSSIBLE OFFERS WATCHLIST</h2><table><tr><th>TARGET</th><th>POTENTIAL BIDDER(S)</th><th>REPORTED</th><th class="r">VALUE £M</th><th>CONSIDERATION</th><th>NOTE</th></tr>${S.watch.map(w=>`<tr><td class="wh">${esc(w.target)}</td><td>${esc(w.bidder)}</td><td>${esc(w.reported)}</td><td class="r">${num(w.value,1)}</td><td>${esc(w.consideration)}</td><td class="w">${esc(w.note)}</td></tr>`).join("")}</table>`;
+}
+function spark(h){
+  if(h.hist.length<2)return `<p class="note">Spread chart appears once 2+ prices are logged.</p>`;
+  const W=520,H=160,P=34;const xs=h.hist.map(x=>+x.date),ys=h.hist.map(x=>x.s);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(0,...ys),y1=Math.max(...ys,0.01);
+  const X=v=>P+(x1===x0?0:(v-x0)/(x1-x0))*(W-2*P),Y=v=>H-20-(v-y0)/(y1-y0)*(H-40);
+  const pts=h.hist.map(x=>X(+x.date)+","+Y(x.s)).join(" ");
+  const band=[TH.as,TH.rs].filter(v=>v<=y1).map((v,i)=>`<line x1="${P}" x2="${W-P}" y1="${Y(v)}" y2="${Y(v)}" stroke="${i?"#8b0000":"#7a5200"}" stroke-dasharray="4 3"/><text x="${W-P+2}" y="${Y(v)+4}" fill="#8a8a8a" font-size="10">${pct(v,0)}</text>`).join("");
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Spread history"><line x1="${P}" x2="${W-P}" y1="${Y(0)}" y2="${Y(0)}" stroke="#444"/>${band}<polyline points="${pts}" fill="none" stroke="#ffb000" stroke-width="2"/>${h.hist.map(x=>`<circle cx="${X(+x.date)}" cy="${Y(x.s)}" r="3" fill="#ff8c00"><title>${fd(x.date)}: ${pct(x.s,2)}</title></circle>`).join("")}<text x="${P}" y="${H-4}" fill="#8a8a8a" font-size="10">${fd(new Date(x0))}</text><text x="${W-P}" y="${H-4}" fill="#8a8a8a" font-size="10" text-anchor="end">${fd(new Date(x1))}</text></svg>`;
+}
+function vHlth(){
+  const hs=live().map(health);const h=sel.hlth?hs.find(x=>x.d.id===sel.hlth):null;
+  const th=(k,l,f)=>`<span>${l}</span><input data-t="${k}" type="number" step="any" value="${f?+(TH[k]*100).toFixed(2):TH[k]}" style="width:70px">`;
+  return `<details class="th"><summary>ALERT THRESHOLDS</summary><div class="flt">${th("as","AMBER SPREAD %",1)}${th("rs","RED SPREAD %",1)}${th("az","AMBER Z")}${th("rz","RED Z")}${th("ap","AMBER PROB <%",1)}${th("rp","RED PROB <%",1)}${th("st","STALE DAYS")}</div></details>
+  <div class="grid"><div class="scroll"><table><tr><th class="hm">ID</th><th>TARGET</th><th class="r hm">OFFER</th><th class="r hm">LAST PX</th><th class="hm">DATE</th><th class="r hm">AGE</th><th class="r">SPREAD</th><th class="r hm">ANN.</th><th class="r">PROB</th><th class="r hm">Z</th><th>HEALTH</th><th class="hm">DIAGNOSIS</th></tr>
+  ${hs.map(x=>`<tr class="click ${sel.hlth===x.d.id?"sel":""}" data-h="${x.d.id}"><td class="hm">${x.d.id}</td><td class="wh">${esc(x.d.target)}</td><td class="r hm">${num(x.offer,2)}</td><td class="r hm">${num(x.px,2)}</td><td class="hm">${fd(x.date)}</td><td class="r hm ${x.age>TH.st?"stale":""}">${x.age??""}</td><td class="r">${pct(x.spread,2)}</td><td class="r hm">${pct(x.ann)}</td><td class="r">${pct(x.prob,0)}</td><td class="r hm">${isn(x.z)?x.z.toFixed(1):""}</td><td>${badge(x.status)}</td><td class="w hm">${esc(x.diag)}</td></tr>`).join("")}</table>
+  <p class="note">Tap a deal for its diagnosis and spread history. Spread = offer / price - 1. Probability = (price - fallback) / (offer - fallback), fallback = undisturbed price unless overridden. Z needs 3+ prices.</p></div>
+  ${h?`<div class="box" id="hdet"><h2>${esc(h.d.target).toUpperCase()} - SPREAD HISTORY</h2>${spark(h)}<div class="kv"><div>Health</div><div>${badge(h.status)}</div><div>Diagnosis</div><div class="wh">${esc(h.diag)}</div><div>Spread / annualised</div><div>${pct(h.spread,2)} / ${pct(h.ann)||"-"}</div><div>Offer value</div><div>${num(h.offer,2)}p</div><div>Last price</div><div>${num(h.px,2)}p on ${fd(h.date)}</div><div>Fallback price</div><div>${num(h.fb,2)||"n/a"}${isn(h.fb)?"p":""}</div><div>Expected completion</div><div>${fd(h.close)||"not set"}</div><div>Prices logged</div><div>${h.n}</div><div>Average spread</div><div>${pct(h.avg,2)}</div><div>Notes</div><div class="wh">${esc(S.notes[h.d.id]||"")}</div></div></div>`:""}</div>`;
+}
+function vPx(){
+  const ps=[...S.prices].sort((a,b)=>b.date-a.date||a.id-b.id);
+  const cmd=newPx.length?`python update_prices.py --manual ${newPx.map(p=>p.id+"="+p.price).join(" ")} --date ${iso(newPx[0].date)}`:"";
+  return `<div class="grid g2"><div class="scroll"><h2>PRICE LOG (${ps.length})</h2><table><tr><th>DATE</th><th class="r">ID</th><th>TARGET</th><th class="r">PRICE (p)</th><th class="r">SPREAD</th><th>SOURCE</th></tr>${ps.slice(0,300).map(p=>{const d=byId(p.id);const o=d?(isn(S.offerOv[d.id])?S.offerOv[d.id]:d.total):null;return `<tr><td>${fd(p.date)}</td><td class="r">${p.id}</td><td class="wh">${esc(d?d.target:"?")}</td><td class="r">${num(p.price,2)}</td><td class="r">${o?pct(o/p.price-1,2):""}</td><td class="gr">${esc(p.note||"")}</td></tr>`}).join("")}</table></div>
+  <div class="box"><h2>ADD A PRICE</h2><div class="form"><div>Date</div><input id="pxd" type="date" value="${iso(today())}"><div>Deal</div><select id="pxi">${live().map(d=>`<option value="${d.id}">${d.id} ${esc(d.target)}</option>`).join("")}</select><div>Price (pence)</div><input id="pxp" type="number" step="any"><div></div><button class="btn" id="pxadd">ADD</button></div>
+  <p class="note">Prices added here update this screen straight away. To save them into your workbook, run the command below in your terminal folder.</p>
+  ${cmd?`<code id="pxcmd">${esc(cmd)}</code><p><button class="btn" id="pxcopy">COPY COMMAND</button> <span id="pxmsg" class="msg"></span></p>`:""}</div></div>`;
+}
+function vHelp(){return `<div class="box"><h2>HOW IT WORKS</h2><p>This terminal shows a snapshot of the UK M&amp;A workbook. <b class="wh">LOAD WORKBOOK</b> reads your latest UK_MA_Terminal.xlsx (after <span class="c">update_prices.py</span> or your own edits) and recalculates everything here - nothing is uploaded anywhere.</p>
+<h2>FUNCTIONS</h2><table>${FUNCS.map(f=>`<tr><td class="c">${f[0]} &lt;GO&gt;</td><td>${f[1]}</td></tr>`).join("")}</table>
+<h2>DEFINITIONS</h2><div class="kv"><div>Undisturbed price</div><div>Share price before the offer period began - the base for the headline premium.</div><div>Rule 2.7</div><div>Firm intention to make an offer: the bidder is committed.</div><div>Spread</div><div>Offer value / share price - 1. Widening = market losing confidence.</div><div>Implied probability</div><div>Where the price sits between the fallback (deal breaks) and the offer (deal completes).</div><div>Z-score</div><div>How unusual today's spread is vs that deal's own history.</div></div>
+<p class="note">Data: Rule 2.7 announcements and press reports, as at 15 Nov 2026. Verify against RNS before relying on any figure. Not investment advice.</p></div>`}
+
+const VIEWS={menu:vMenu,deal:vDeal,comp:vComp,prem:vPrem,live:vLive,hlth:vHlth,px:vPx,help:vHelp};
+function render(){
+  document.getElementById("fks").innerHTML=FUNCS.map(f=>`<button class="fk ${view===f[0].toLowerCase()?"on":""}" data-go="${f[0].toLowerCase()}"><b>${f[0]}</b></button>`).join(" ");
+  const m=document.getElementById("main");const act=document.activeElement&&document.activeElement.id;m.innerHTML=VIEWS[view]();
+  if(act==="dq"){const q=document.getElementById("dq");q.focus();q.setSelectionRange(q.value.length,q.value.length)}
+}
+function go(v,id){v=(v||"menu").toLowerCase();if(!VIEWS[v])v="menu";view=v;if(id){if(v==="deal")sel.deal=id;if(v==="hlth")sel.hlth=id}
+  if(location.hash!=="#"+v){try{history.replaceState(null,"","#"+v)}catch(e){location.hash=v}}render();window.scrollTo(0,0)}
+
+document.addEventListener("click",e=>{const t=e.target.closest("[data-go],[data-sort],[data-deal],[data-h],#pxadd,#pxcopy");if(!t)return;
+  if(t.id==="pxadd"){const p=parseFloat(document.getElementById("pxp").value),i=+document.getElementById("pxi").value,d=D(document.getElementById("pxd").value);if(!isn(p)||!d)return;const rec={date:d,id:i,price:p,note:"added in web terminal"};S.prices.push(rec);newPx=newPx.filter(x=>!(x.id===i&&+x.date===+d));newPx.push(rec);render();return}
+  if(t.id==="pxcopy"){const c=document.getElementById("pxcmd").textContent;navigator.clipboard.writeText(c).then(()=>{document.getElementById("pxmsg").textContent="Copied."},()=>{document.getElementById("pxmsg").textContent="Copy blocked - select the text above."});return}
+  if(t.dataset.sort){const k=t.dataset.sort;sortDeal=sortDeal.k===k?{k,d:-sortDeal.d}:{k,d:1};render();return}
+  if(t.dataset.deal){sel.deal=+t.dataset.deal===sel.deal?null:+t.dataset.deal;render();return}
+  if(t.dataset.h){sel.hlth=+t.dataset.h===sel.hlth?null:+t.dataset.h;render();const hd=document.getElementById("hdet");if(hd)hd.scrollIntoView({behavior:"smooth",block:"nearest"});return}
+  if(t.dataset.go)go(t.dataset.go,t.dataset.id?+t.dataset.id:null);});
+document.addEventListener("input",e=>{const t=e.target;
+  if(t.id==="dq"){render();return}
+  if(t.dataset.f){compF[t.dataset.f]=(t.dataset.f==="min"||t.dataset.f==="max")?(+t.value||0):t.value}
+  if(t.dataset.c){calc[t.dataset.c]=t.type==="number"?(+t.value||0):t.value}
+  if(t.dataset.t){const k=t.dataset.t;const v=+t.value;if(isn(v)){TH[k]=(k==="az"||k==="rz"||k==="st")?v:v/100}}});
+let rq=false;const later=()=>{if(rq)return;rq=true;setTimeout(()=>{rq=false;render()},0)};
+document.addEventListener("change",e=>{const d=e.target.dataset;if(d.t||d.f||d.c)later()});
+document.addEventListener("keydown",e=>{const d=e.target.dataset||{};if(e.key==="Enter"&&(d.t||d.f||d.c))later()});
+document.getElementById("cmdin").addEventListener("keydown",e=>{if(e.key==="Enter"){const v=e.target.value.trim().replace(/<?GO>?$/i,"").trim();e.target.value="";go(v.split(/\s+/)[0])}});
+window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v&&v!==view)go(v)});
+setInterval(()=>{const n=new Date();document.getElementById("clock").textContent=fd(n)+" "+n.toTimeString().slice(0,8)},1000);
+
+/* ---------------- workbook loader ---------------- */
+document.getElementById("file").addEventListener("change",async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    if(typeof XLSX==="undefined")throw new Error("spreadsheet reader did not load");
+    const wb=XLSX.read(await f.arrayBuffer(),{cellDates:true});
+    const val=(ws,a)=>{const c=ws[a];return c?c.v:undefined};
+    const ds=wb.Sheets["Deals"];const deals=[];const rowId={};
+    for(let r=5;r<500;r++){const tg=val(ds,"B"+r);if(tg==null||tg==="")break;
+      const n=k=>{const v=val(ds,k+r);return typeof v==="number"?v:null},s=k=>{const v=val(ds,k+r);return v==null?"":String(v)};
+      const d={id:n("A")??(r-4),target:s("B"),bidder:s("C"),type:s("D"),hq:s("E"),sector:s("F"),op_start:D(val(ds,"G"+r)),date27:D(val(ds,"H"+r)),consideration:s("J"),price:n("K"),total:n("L"),undisturbed:n("M"),rep_prem:n("O"),rep_vwap3m:n("R"),equity:n("S"),ev:n("T"),competing:s("U"),proposals:n("V"),target_fa:s("W"),bidder_fa:s("X"),status:s("Y"),note:s("Z"),source:(ds["AA"+r]&&ds["AA"+r].l&&ds["AA"+r].l.Target)||s("AA")};
+      deals.push(d);rowId[r]=d.id}
+    const pl=wb.Sheets["Price Log"],prices=[];
+    if(pl){const rng=XLSX.utils.decode_range(pl["!ref"]);for(let r=5;r<=rng.e.r+1;r++){const dt=D(val(pl,"A"+r)),id=val(pl,"B"+r),px=val(pl,"D"+r);if(dt&&typeof id==="number"&&typeof px==="number")prices.push({date:dt,id,price:px,note:val(pl,"G"+r)||""})}}
+    const exp={},fb={},notes={},offerOv={};const dh=wb.Sheets["Deal Health"];
+    if(dh){for(let r=15;r<200;r++){const b=dh["B"+r];if(!b)continue;let id=typeof b.v==="number"?b.v:null;if(id==null&&b.f){const m=/Deals!\$?A\$?(\d+)/.exec(b.f);if(m)id=rowId[+m[1]]}if(id==null)continue;
+      const e2=dh["E"+r];if(e2&&!e2.f&&typeof e2.v==="number")offerOv[id]=e2.v;
+      const f2=dh["F"+r];if(f2&&!f2.f&&typeof f2.v==="number")fb[id]=f2.v;
+      const g=D(val(dh,"G"+r));if(g)exp[id]=g;const s2=val(dh,"S"+r);if(s2)notes[id]=String(s2)}}
+    const miles={},watch=[];const lt=wb.Sheets["Live Tracker"];
+    if(lt){let on=false;for(let r=6;r<120;r++){const b=lt["B"+r];const bv=b?b.v:undefined;
+      if(typeof bv==="string"&&bv.startsWith("Possible offers watchlist")){on=true;r++;continue}
+      if(!on&&b&&b.f){const m=/Deals!\$?B\$?(\d+)/.exec(b.f);if(m&&rowId[+m[1]]!=null)miles[rowId[+m[1]]]=val(lt,"H"+r)||""}
+      if(on&&typeof bv==="string"&&bv)watch.push({target:bv,bidder:val(lt,"C"+r)||"",reported:val(lt,"D"+r)||"",value:val(lt,"E"+r),consideration:val(lt,"F"+r)||"",note:val(lt,"H"+r)||""})}}
+    if(!deals.length)throw new Error("no deals found on the Deals tab");
+    S={deals,prices,exp,fb,notes,miles,watch:watch.length?watch:S.watch,sectors:[...new Set([...SNAP.sectors,...deals.map(d=>d.sector).filter(Boolean)])].sort(),offerOv};
+    newPx=[];setSrc("LOADED "+f.name.toUpperCase());render();
+  }catch(err){document.getElementById("src").textContent="LOAD FAILED: "+err.message}
+  e.target.value="";
+});
+
+loadSnapshot();go(location.hash.slice(1)||"menu");
+</script>
+</body>
+</html>
