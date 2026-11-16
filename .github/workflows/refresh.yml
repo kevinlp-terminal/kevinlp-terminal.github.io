@@ -31,6 +31,9 @@ jobs:
       - name: Update prices
         working-directory: engine
         run: python update_prices.py --refresh-today || echo "price update had problems - building with what we have"
+      - name: Update US deals
+        working-directory: engine
+        run: python us_update.py || echo "US update had problems - building with what we have"
       - name: Build page
         working-directory: engine
         run: python web/build_web.py UK_MA_Terminal.xlsx web/template.html ../index.html
@@ -38,7 +41,7 @@ jobs:
         run: |
           git config user.name "KEVIN LP bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add index.html engine/us_deals.csv engine/us_prices.csv
           # keep the workbook history small: save it once a day, after the close
           if [ "$(date -u +%H)" -ge 16 ] || [ "${{ github.event_name }}" != "schedule" ]; then
             git add engine/UK_MA_Terminal.xlsx

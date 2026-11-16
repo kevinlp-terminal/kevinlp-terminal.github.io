@@ -106,10 +106,40 @@ def build(wb_path):
     sectors = sorted({d["sector"] for d in deals if d["sector"]} | {
         "Business Services", "Consumer", "Energy", "Financials", "Healthcare", "Industrials",
         "Real Estate", "Technology & Telecoms", "Travel & Leisure"})
+    for d in deals:
+        d["region"], d["ccy"] = "UK", "p"
+    add_us(deals, prices, offer_ov)
     latest = max((p["date"] for p in prices), default=None)
     return {"deals": deals, "prices": prices, "exp_close": exp_close, "fallback": fallback,
             "health_notes": notes, "offer_override": offer_ov, "milestones": milestones, "watch": watch,
             "sectors": sectors, "built": datetime.now().strftime("%Y-%m-%d %H:%M"), "latest_price": latest}
+
+
+def add_us(deals, prices, offer_ov):
+    """Merge US deals (us_deals.csv / us_prices.csv next to the workbook's engine folder)."""
+    import csv, os
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(base, "us_deals.csv")
+    if not os.path.exists(path):
+        return
+    fl = lambda x: float(x) if x not in (None, "") else None
+    for r in csv.DictReader(open(path, newline="", encoding="utf-8")):
+        price = fl(r["price"])
+        deals.append({"id": int(r["id"]), "target": r["target"], "bidder": r["bidder"], "type": r["type"], "hq": "USA",
+                      "sector": r["sector"], "op_start": None, "date27": r["date27"], "consideration": r["consideration"],
+                      "price": price, "total": price, "undisturbed": fl(r["undisturbed"]), "rep_prem": fl(r["rep_prem"]),
+                      "rep_vwap3m": None, "equity": fl(r["equity"]), "ev": None, "competing": "", "proposals": None,
+                      "target_fa": "", "bidder_fa": "", "status": r["status"], "note": r["note"], "source": r["source"],
+                      "region": "US", "ccy": "$", "ticker": r["ticker"]})
+    pp = os.path.join(base, "us_prices.csv")
+    if os.path.exists(pp):
+        last = {}
+        for p in csv.DictReader(open(pp, newline="", encoding="utf-8")):
+            prices.append({"date": p["date"], "id": int(p["id"]), "price": float(p["price"]), "note": p["note"]})
+            if p["offer"]:
+                last[p["id"]] = (p["date"], float(p["offer"]))
+        for i, (_, o) in last.items():
+            offer_ov[i] = o
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ a{color:var(--cyan)}
 .cmd input{background:#111;border:1px solid var(--line);color:var(--white);font:inherit;padding:5px 8px;width:300px;text-transform:uppercase}
 .fk{background:#1a1a1a;border:1px solid var(--line);color:var(--amber);font:inherit;padding:4px 9px;cursor:pointer}
 .fk b{color:var(--white)}
+.rgw{margin-left:10px;white-space:nowrap}.rg{border-color:#3a3a3a}.rg.on{background:var(--amber)}.rg.on b{color:#000}
 .fk.on{background:var(--amber);color:#000}.fk.on b{color:#000}
 .fk:hover{border-color:var(--amber)}
 .btn{background:#1a1a1a;border:1px solid var(--cyan);color:var(--cyan);font:inherit;padding:4px 10px;cursor:pointer}
@@ -73,7 +74,7 @@ code{color:var(--white);background:#111;padding:2px 6px;border:1px solid var(--l
 <script>
 const SNAP = __SNAPSHOT__;
 const FUNCS=[["MENU","Home screen"],["DEAL","Deal database"],["COMP","Precedents"],["PREM","Premium calculator"],["LIVE","Live tracker"],["HLTH","Deal health"],["PX","Price log"],["HELP","Help"]];
-let S={}; let view="menu"; let sel={deal:null,hlth:null}; let sortDeal={k:"date27",d:-1}; let compF={sector:"All",type:"All",status:"All",min:0,max:100000};
+let S={}; let region="All"; let view="menu"; let sel={deal:null,hlth:null}; let sortDeal={k:"date27",d:-1}; let compF={sector:"All",type:"All",status:"All",min:0,max:100000};
 let calc={name:"Example plc",und:400,v1:390,v3:375,offer:560,shares:250,debt:150,sector:"Energy"};
 let TH={as:.05,rs:.10,az:1,rz:2,ap:.85,rp:.70,st:7};
 let newPx=[];
@@ -104,7 +105,10 @@ function setSrc(label){const lp=S.prices.reduce((m,p)=>p.date>m?p.date:m,new Dat
   document.getElementById("src").textContent=(label?label+" | ":"")+"PRICES TO "+(+lp?fd(lp):"-")+(SNAP.built&&!label?" | UPDATED "+fd(D(SNAP.built.slice(0,10)))+" "+SNAP.built.slice(11):"");}
 function premOf(d){const c=isn(d.price)&&isn(d.undisturbed)&&d.undisturbed>0?d.price/d.undisturbed-1:null;return {calc:c,an:isn(c)?c:(isn(d.rep_prem)?d.rep_prem:null)}}
 const byId=id=>S.deals.find(d=>d.id===id);
-const live=()=>S.deals.filter(d=>d.status==="Pending");
+const RD=()=>S.deals.filter(d=>region==="All"||d.region===region);
+const live=()=>RD().filter(d=>d.status==="Pending");
+const CU=()=>region==="US"?"$":region==="UK"?"p":"p / $";const MU=()=>region==="US"?"$M":region==="UK"?"£M":"£M / $M";
+const cc=(d,v)=>isn(v)?(d&&d.ccy==="$"?"$"+num(v,2):num(v,2)+"p"):"";
 
 function health(d){
   const ps=S.prices.filter(p=>p.id===d.id&&isn(p.price)&&p.price>0&&p.date).sort((a,b)=>a.date-b.date);
@@ -128,15 +132,15 @@ const badge=s=>`<span class="badge ${s.replace(" OFFER","").replace(" ","")}">${
 
 /* ---------------- views ---------------- */
 function vMenu(){
-  const pr=S.deals.map(d=>premOf(d).an), lv=live(), hs=lv.map(health);
-  const tiles=[["DEALS IN DATABASE",S.deals.length],["MEDIAN PREMIUM",pct(median(pr))],["LIVE DEALS",lv.length],
+  const pr=RD().map(d=>premOf(d).an), lv=live(), hs=lv.map(health);
+  const tiles=[["DEALS IN DATABASE",RD().length],["MEDIAN PREMIUM",pct(median(pr))],["LIVE DEALS",lv.length],
    ["RED / AMBER",hs.filter(h=>h.status==="RED").length+" / "+hs.filter(h=>h.status==="AMBER").length],
-   ["PRIVATE EQUITY SHARE",pct(S.deals.filter(d=>d.type==="Private equity").length/S.deals.length)],
-   ["TOTAL EQUITY VALUE",num(S.deals.reduce((s,d)=>s+(d.equity||0),0)/1000,1)+" BN"]];
-  const top=S.deals.map(d=>({d,p:premOf(d).an})).filter(x=>isn(x.p)).sort((a,b)=>b.p-a.p).slice(0,5);
-  const sec=S.sectors.map(s=>{const v=S.deals.filter(d=>d.sector===s).map(d=>premOf(d).an).filter(isn);return [s,v.length,mean(v)]});
+   ["PRIVATE EQUITY SHARE",pct(RD().filter(d=>d.type==="Private equity").length/RD().length)],
+   ["TOTAL DEAL VALUE",(()=>{const t=r=>num(RD().filter(d=>d.region===r).reduce((s,d)=>s+(d.equity||0),0)/1000,1);return region==="UK"?"£"+t("UK")+" BN":region==="US"?"$"+t("US")+" BN":"£"+t("UK")+"BN + $"+t("US")+"BN"})()]];
+  const top=RD().map(d=>({d,p:premOf(d).an})).filter(x=>isn(x.p)).sort((a,b)=>b.p-a.p).slice(0,5);
+  const sec=S.sectors.map(s=>{const v=RD().filter(d=>d.sector===s).map(d=>premOf(d).an).filter(isn);return [s,v.length,mean(v)]});
   const nWatch=S.watch.length;
-  return `<div class="about"><b>KEVIN LP</b> tracks every UK public takeover under the Takeover Code: ${S.deals.length} firm offers in 2026, ${lv.length} still live, ${nWatch} companies on the watchlist. It benchmarks bid premiums, monitors whether the market expects each live deal to complete, and flags new situations daily. <span class="gr">Built by Kevin Sutan. Data from Rule 2.7 announcements and market prices; not investment advice.</span><br><span class="c">Start with HLTH (deal health), COMP (precedents) or PREM (premium calculator).</span></div>
+  return `<div class="about"><b>KEVIN LP</b> tracks 2026 public takeovers in the UK (firm offers under the Takeover Code) and the US (the largest deals, $1bn+): ${RD().length} deals ${region==="All"?"in total":"in the "+region}, ${lv.length} still live, ${nWatch} UK companies on the watchlist. It benchmarks bid premiums, monitors whether the market expects each live deal to complete, and flags new situations daily. <span class="gr">Built by Kevin Sutan. Data from Rule 2.7 announcements and market prices; not investment advice.</span><br><span class="c">Start with HLTH (deal health), COMP (precedents) or PREM (premium calculator).</span></div>
   <h2>HEADLINES</h2><div class="tiles">${tiles.map(t=>`<div class="tile"><div class="l">${t[0]}</div><div class="v">${t[1]}</div></div>`).join("")}</div>
   <div class="grid g2"><div><h2>LIVE DEAL MONITOR &nbsp;<span class="gr">(HLTH)</span></h2><div class="scroll"><table><tr><th class="hm">ID</th><th>TARGET</th><th class="hm">BIDDER</th><th class="r">SPREAD</th><th class="r">PROB</th><th class="r hm">PX AGE</th><th>HEALTH</th></tr>
   ${hs.map(h=>`<tr class="click" data-go="hlth" data-id="${h.d.id}"><td class="hm">${h.d.id}</td><td class="wh">${esc(h.d.target)}</td><td class="hm">${esc(h.d.bidder)}</td><td class="r">${pct(h.spread)}</td><td class="r">${pct(h.prob,0)}</td><td class="r hm ${h.age>TH.st?"stale":""}">${h.age??""}</td><td>${badge(h.status)}</td></tr>`).join("")}</table></div></div>
@@ -145,9 +149,9 @@ function vMenu(){
   <h2>FUNCTIONS</h2><table>${FUNCS.slice(1).map(f=>`<tr class="click" data-go="${f[0].toLowerCase()}"><td class="c">${f[0]} &lt;GO&gt;</td><td>${f[1]}</td></tr>`).join("")}</table></div></div>`;
 }
 function vDeal(){
-  const cols=[["id","ID"],["target","TARGET"],["bidder","BIDDER"],["type","TYPE"],["sector","SECTOR"],["date27","RULE 2.7"],["price","OFFER (p)"],["undisturbed","UNDIST (p)"],["prem","PREMIUM"],["equity","EQUITY £M"],["competing","RIVAL"],["status","STATUS"]];const HM=new Set(["id","bidder","type","sector","date27","price","undisturbed","competing"]);
+  const cols=[["id","ID"],["target","TARGET"],["bidder","BIDDER"],["type","TYPE"],["sector","SECTOR"],["date27",region==="UK"?"RULE 2.7":"ANNOUNCED"],["price",`OFFER (${CU()})`],["undisturbed",`UNDIST (${CU()})`],["prem","PREMIUM"],["equity",`EQUITY ${MU()}`],["competing","RIVAL"],["status","STATUS"]];const HM=new Set(["id","bidder","type","sector","date27","price","undisturbed","competing"]);
   const q=(document.getElementById("dq")||{}).value||"";
-  let rows=S.deals.map(d=>({...d,prem:premOf(d).an})).filter(d=>!q||JSON.stringify(d).toLowerCase().includes(q.toLowerCase()));
+  let rows=RD().map(d=>({...d,prem:premOf(d).an})).filter(d=>!q||JSON.stringify(d).toLowerCase().includes(q.toLowerCase()));
   rows.sort((a,b)=>{const x=a[sortDeal.k],y=b[sortDeal.k];if(x==null)return 1;if(y==null)return -1;return (x>y?1:x<y?-1:0)*sortDeal.d});
   const d=sel.deal?byId(sel.deal):null;const p=d?premOf(d):null;
   return `<div class="flt"><span>SEARCH</span><input id="dq" value="${esc(q)}" placeholder="target, bidder, sector..."><span class="note">Click a column to sort, a row for detail.</span></div>
@@ -164,19 +168,19 @@ function vDeal(){
   <div>Source</div><div>${d.source?`<a href="${esc(d.source)}" target="_blank" rel="noopener">${esc(d.source.replace(/^https?:\/\//,"").slice(0,60))}...</a>`:"-"}</div></div></div>`:""}</div>`;
 }
 function vComp(){
-  const f=compF;const rows=S.deals.filter(d=>(f.sector==="All"||d.sector===f.sector)&&(f.type==="All"||d.type===f.type)&&(f.status==="All"||d.status===f.status)&&(d.equity||0)>=f.min&&(d.equity||0)<=f.max).map(d=>({d,p:premOf(d).an}));
+  const f=compF;const rows=RD().filter(d=>(f.sector==="All"||d.sector===f.sector)&&(f.type==="All"||d.type===f.type)&&(f.status==="All"||d.status===f.status)&&(d.equity||0)>=f.min&&(d.equity||0)<=f.max).map(d=>({d,p:premOf(d).an}));
   const v=rows.map(r=>r.p).filter(isn);const mx=Math.max(0.01,...v);
   const opt=(arr,cur)=>arr.map(a=>`<option ${a===cur?"selected":""}>${a}</option>`).join("");
   const W=520,rh=18,H=rows.length*rh+10;
   const svg=`<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Premium by deal">${rows.map((r,i)=>{const w=isn(r.p)?r.p/mx*(W-260):0;return `<text x="0" y="${i*rh+13}" fill="#ffb000" font-size="11" font-family="IBM Plex Mono,monospace">${esc(r.d.target.slice(0,26))}</text><rect x="190" y="${i*rh+3}" width="${Math.max(w,0)}" height="12" fill="#ff8c00"/><text x="${196+Math.max(w,0)}" y="${i*rh+13}" fill="#f2f2f2" font-size="11" font-family="IBM Plex Mono,monospace">${isn(r.p)?pct(r.p):"n/a"}</text>`}).join("")}</svg>`;
-  return `<div class="flt"><span>SECTOR</span><select data-f="sector">${opt(["All",...S.sectors],f.sector)}</select><span>BIDDER</span><select data-f="type">${opt(["All","Trade","Private equity"],f.type)}</select><span>STATUS</span><select data-f="status">${opt(["All","Completed","Pending","Lapsed","Withdrawn"],f.status)}</select><span>EQUITY £M</span><input data-f="min" type="number" value="${f.min}" style="width:90px"> to <input data-f="max" type="number" value="${f.max}" style="width:100px"></div>
+  return `<div class="flt"><span>SECTOR</span><select data-f="sector">${opt(["All",...S.sectors],f.sector)}</select><span>BIDDER</span><select data-f="type">${opt(["All","Trade","Private equity","Other"],f.type)}</select><span>STATUS</span><select data-f="status">${opt(["All","Completed","Pending","Unconfirmed","Lapsed","Withdrawn","Terminated"],f.status)}</select><span>EQUITY ${MU()}</span><input data-f="min" type="number" value="${f.min}" style="width:90px"> to <input data-f="max" type="number" value="${f.max}" style="width:100px"></div>
   <div class="tiles"><div class="tile"><div class="l">DEALS MATCHING</div><div class="v">${rows.length}</div></div><div class="tile"><div class="l">MEDIAN PREMIUM</div><div class="v">${pct(median(v))||"n/a"}</div></div><div class="tile"><div class="l">MEAN PREMIUM</div><div class="v">${pct(mean(v))||"n/a"}</div></div><div class="tile"><div class="l">LOW / HIGH</div><div class="v">${v.length?pct(Math.min(...v),0)+" / "+pct(Math.max(...v),0):"n/a"}</div></div></div>
-  <div class="grid g2"><div class="scroll"><h2>PRECEDENT TRANSACTIONS</h2><table><tr><th>TARGET</th><th>BIDDER</th><th>TYPE</th><th>RULE 2.7</th><th class="r">OFFER (p)</th><th class="r">PREMIUM</th><th class="r">EQUITY £M</th><th>STATUS</th></tr>${rows.map(r=>`<tr class="click" data-go="deal" data-id="${r.d.id}"><td class="wh">${esc(r.d.target)}</td><td>${esc(r.d.bidder)}</td><td>${r.d.type}</td><td>${fd(r.d.date27)}</td><td class="r">${num(r.d.price,2)}</td><td class="r g">${pct(r.p)}</td><td class="r">${num(r.d.equity,1)}</td><td>${r.d.status}</td></tr>`).join("")}</table></div>
+  <div class="grid g2"><div class="scroll"><h2>PRECEDENT TRANSACTIONS</h2><table><tr><th>TARGET</th><th>BIDDER</th><th>TYPE</th><th>${region==="UK"?"RULE 2.7":"ANNOUNCED"}</th><th class="r">OFFER (${CU()})</th><th class="r">PREMIUM</th><th class="r">EQUITY ${MU()}</th><th>STATUS</th></tr>${rows.map(r=>`<tr class="click" data-go="deal" data-id="${r.d.id}"><td class="wh">${esc(r.d.target)}</td><td>${esc(r.d.bidder)}</td><td>${r.d.type}</td><td>${fd(r.d.date27)}</td><td class="r">${num(r.d.price,2)}</td><td class="r g">${pct(r.p)}</td><td class="r">${num(r.d.equity,1)}</td><td>${r.d.status}</td></tr>`).join("")}</table></div>
   <div class="box"><h2>PREMIUM TO UNDISTURBED PRICE</h2>${svg}</div></div>`;
 }
 function vPrem(){
   const c=calc,p0=c.offer/c.und-1,p1=c.offer/c.v1-1,p3=c.offer/c.v3-1,eq=c.offer*c.shares/100;
-  const all=S.deals.map(d=>premOf(d).an).filter(isn),secv=S.deals.filter(d=>d.sector===c.sector).map(d=>premOf(d).an).filter(isn);
+  const all=RD().map(d=>premOf(d).an).filter(isn),secv=RD().filter(d=>d.sector===c.sector).map(d=>premOf(d).an).filter(isn);
   const below=all.filter(x=>x<p0).length/all.length, med=median(all), smed=median(secv);
   const inp=(k,l,step)=>`<div>${l}</div><input data-c="${k}" type="${k==="name"?"text":"number"}" step="${step||"any"}" value="${esc(c[k])}">`;
   return `<div class="grid g2"><div class="box"><h2>INPUTS</h2><div class="form">${inp("name","Target name")}${inp("und","Undisturbed price (p)")}${inp("v1","1-month VWAP (p)")}${inp("v3","3-month VWAP (p)")}${inp("offer","Proposed offer price (p)")}${inp("shares","Fully diluted shares (m)")}${inp("debt","Net debt (£m)")}<div>Comparison sector</div><select data-c="sector">${S.sectors.map(s=>`<option ${s===c.sector?"selected":""}>${s}</option>`).join("")}</select></div>
@@ -209,12 +213,12 @@ function vHlth(){
   <div class="grid"><div class="scroll"><table><tr><th class="hm">ID</th><th>TARGET</th><th class="r hm">OFFER</th><th class="r hm">LAST PX</th><th class="hm">DATE</th><th class="r hm">AGE</th><th class="r">SPREAD</th><th class="r hm">ANN.</th><th class="r">PROB</th><th class="r hm">Z</th><th>HEALTH</th><th class="hm">DIAGNOSIS</th></tr>
   ${hs.map(x=>`<tr class="click ${sel.hlth===x.d.id?"sel":""}" data-h="${x.d.id}"><td class="hm">${x.d.id}</td><td class="wh">${esc(x.d.target)}</td><td class="r hm">${num(x.offer,2)}</td><td class="r hm">${num(x.px,2)}</td><td class="hm">${fd(x.date)}</td><td class="r hm ${x.age>TH.st?"stale":""}">${x.age??""}</td><td class="r">${pct(x.spread,2)}</td><td class="r hm">${pct(x.ann)}</td><td class="r">${pct(x.prob,0)}</td><td class="r hm">${isn(x.z)?x.z.toFixed(1):""}</td><td>${badge(x.status)}</td><td class="w hm">${esc(x.diag)}</td></tr>`).join("")}</table>
   <p class="note">Tap a deal for its diagnosis and spread history. Spread = offer / price - 1. Probability = (price - fallback) / (offer - fallback), fallback = undisturbed price unless overridden. Z needs 3+ prices.</p></div>
-  ${h?`<div class="box" id="hdet"><h2>${esc(h.d.target).toUpperCase()} - SPREAD HISTORY</h2>${spark(h)}<div class="kv"><div>Health</div><div>${badge(h.status)}</div><div>Diagnosis</div><div class="wh">${esc(h.diag)}</div><div>Spread / annualised</div><div>${pct(h.spread,2)} / ${pct(h.ann)||"-"}</div><div>Offer value</div><div>${num(h.offer,2)}p</div><div>Last price</div><div>${num(h.px,2)}p on ${fd(h.date)}</div><div>Fallback price</div><div>${num(h.fb,2)||"n/a"}${isn(h.fb)?"p":""}</div><div>Expected completion</div><div>${fd(h.close)||"not set"}</div><div>Prices logged</div><div>${h.n}</div><div>Average spread</div><div>${pct(h.avg,2)}</div><div>Notes</div><div class="wh">${esc(S.notes[h.d.id]||"")}</div></div></div>`:""}</div>`;
+  ${h?`<div class="box" id="hdet"><h2>${esc(h.d.target).toUpperCase()} - SPREAD HISTORY</h2>${spark(h)}<div class="kv"><div>Health</div><div>${badge(h.status)}</div><div>Diagnosis</div><div class="wh">${esc(h.diag)}</div><div>Spread / annualised</div><div>${pct(h.spread,2)} / ${pct(h.ann)||"-"}</div><div>Offer value</div><div>${cc(h.d,h.offer)}</div><div>Last price</div><div>${cc(h.d,h.px)} on ${fd(h.date)}</div><div>Fallback price</div><div>${isn(h.fb)?cc(h.d,h.fb):"n/a"}</div><div>Expected completion</div><div>${fd(h.close)||"not set"}</div><div>Prices logged</div><div>${h.n}</div><div>Average spread</div><div>${pct(h.avg,2)}</div><div>Notes</div><div class="wh">${esc(S.notes[h.d.id]||"")}</div></div></div>`:""}</div>`;
 }
 function vPx(){
   const ps=[...S.prices].sort((a,b)=>b.date-a.date||a.id-b.id);
   const cmd=newPx.length?`python update_prices.py --manual ${newPx.map(p=>p.id+"="+p.price).join(" ")} --date ${iso(newPx[0].date)}`:"";
-  return `<div class="grid g2"><div class="scroll"><h2>PRICE LOG (${ps.length})</h2><table><tr><th>DATE</th><th class="r">ID</th><th>TARGET</th><th class="r">PRICE (p)</th><th class="r">SPREAD</th><th>SOURCE</th></tr>${ps.slice(0,300).map(p=>{const d=byId(p.id);const o=d?(isn(S.offerOv[d.id])?S.offerOv[d.id]:d.total):null;return `<tr><td>${fd(p.date)}</td><td class="r">${p.id}</td><td class="wh">${esc(d?d.target:"?")}</td><td class="r">${num(p.price,2)}</td><td class="r">${o?pct(o/p.price-1,2):""}</td><td class="gr">${esc(p.note||"")}</td></tr>`}).join("")}</table></div>
+  return `<div class="grid g2"><div class="scroll"><h2>PRICE LOG (${ps.length})</h2><table><tr><th>DATE</th><th class="r">ID</th><th>TARGET</th><th class="r">PRICE (${CU()})</th><th class="r">SPREAD</th><th>SOURCE</th></tr>${ps.slice(0,300).map(p=>{const d=byId(p.id);const o=d?(isn(S.offerOv[d.id])?S.offerOv[d.id]:d.total):null;return `<tr><td>${fd(p.date)}</td><td class="r">${p.id}</td><td class="wh">${esc(d?d.target:"?")}</td><td class="r">${num(p.price,2)}</td><td class="r">${o?pct(o/p.price-1,2):""}</td><td class="gr">${esc(p.note||"")}</td></tr>`}).join("")}</table></div>
   <div class="box"><h2>ADD A PRICE</h2><div class="form"><div>Date</div><input id="pxd" type="date" value="${iso(today())}"><div>Deal</div><select id="pxi">${live().map(d=>`<option value="${d.id}">${d.id} ${esc(d.target)}</option>`).join("")}</select><div>Price (pence)</div><input id="pxp" type="number" step="any"><div></div><button class="btn" id="pxadd">ADD</button></div>
   <p class="note">Prices added here update this screen straight away. To save them into your workbook, run the command below in your terminal folder.</p>
   ${cmd?`<code id="pxcmd">${esc(cmd)}</code><p><button class="btn" id="pxcopy">COPY COMMAND</button> <span id="pxmsg" class="msg"></span></p>`:""}</div></div>`;
@@ -226,14 +230,15 @@ function vHelp(){return `<div class="box"><h2>HOW IT WORKS</h2><p>This terminal 
 
 const VIEWS={menu:vMenu,deal:vDeal,comp:vComp,prem:vPrem,live:vLive,hlth:vHlth,px:vPx,help:vHelp};
 function render(){
-  document.getElementById("fks").innerHTML=FUNCS.map(f=>`<button class="fk ${view===f[0].toLowerCase()?"on":""}" data-go="${f[0].toLowerCase()}"><b>${f[0]}</b></button>`).join(" ");
+  document.getElementById("fks").innerHTML=FUNCS.map(f=>`<button class="fk ${view===f[0].toLowerCase()?"on":""}" data-go="${f[0].toLowerCase()}"><b>${f[0]}</b></button>`).join(" ")+` <span class="rgw">${["All","UK","US"].map(r=>`<button class="fk rg ${region===r?"on":""}" data-rg="${r}"><b>${r.toUpperCase()}</b></button>`).join("")}</span>`;
   const m=document.getElementById("main");const act=document.activeElement&&document.activeElement.id;m.innerHTML=VIEWS[view]();
   if(act==="dq"){const q=document.getElementById("dq");q.focus();q.setSelectionRange(q.value.length,q.value.length)}
 }
 function go(v,id){v=(v||"menu").toLowerCase();if(!VIEWS[v])v="menu";view=v;if(id){if(v==="deal")sel.deal=id;if(v==="hlth")sel.hlth=id}
   if(location.hash!=="#"+v){try{history.replaceState(null,"","#"+v)}catch(e){location.hash=v}}render();window.scrollTo(0,0)}
 
-document.addEventListener("click",e=>{const t=e.target.closest("[data-go],[data-sort],[data-deal],[data-h],#pxadd,#pxcopy");if(!t)return;
+document.addEventListener("click",e=>{const t=e.target.closest("[data-go],[data-sort],[data-deal],[data-h],[data-rg],#pxadd,#pxcopy");if(!t)return;
+  if(t.dataset.rg){region=t.dataset.rg;sel={deal:null,hlth:null};render();return}
   if(t.id==="pxadd"){const p=parseFloat(document.getElementById("pxp").value),i=+document.getElementById("pxi").value,d=D(document.getElementById("pxd").value);if(!isn(p)||!d)return;const rec={date:d,id:i,price:p,note:"added in web terminal"};S.prices.push(rec);newPx=newPx.filter(x=>!(x.id===i&&+x.date===+d));newPx.push(rec);render();return}
   if(t.id==="pxcopy"){const c=document.getElementById("pxcmd").textContent;navigator.clipboard.writeText(c).then(()=>{document.getElementById("pxmsg").textContent="Copied."},()=>{document.getElementById("pxmsg").textContent="Copy blocked - select the text above."});return}
   if(t.dataset.sort){const k=t.dataset.sort;sortDeal=sortDeal.k===k?{k,d:-sortDeal.d}:{k,d:1};render();return}
@@ -277,7 +282,7 @@ document.getElementById("file").addEventListener("change",async e=>{
       if(!on&&b&&b.f){const m=/Deals!\$?B\$?(\d+)/.exec(b.f);if(m&&rowId[+m[1]]!=null)miles[rowId[+m[1]]]=val(lt,"H"+r)||""}
       if(on&&typeof bv==="string"&&bv)watch.push({target:bv,bidder:val(lt,"C"+r)||"",reported:val(lt,"D"+r)||"",value:val(lt,"E"+r),consideration:val(lt,"F"+r)||"",note:val(lt,"H"+r)||""})}}
     if(!deals.length)throw new Error("no deals found on the Deals tab");
-    S={deals,prices,exp,fb,notes,miles,watch:watch.length?watch:S.watch,sectors:[...new Set([...SNAP.sectors,...deals.map(d=>d.sector).filter(Boolean)])].sort(),offerOv};
+    S={deals:[...deals.map(d=>({...d,region:"UK",ccy:"p"})),...SNAP.deals.filter(d=>d.region==="US")],prices:[...prices,...SNAP.prices.filter(p=>p.id>=1000)],exp,fb,notes,miles,watch:watch.length?watch:S.watch,sectors:[...new Set([...SNAP.sectors,...deals.map(d=>d.sector).filter(Boolean)])].sort(),offerOv};
     newPx=[];setSrc("LOADED "+f.name.toUpperCase());render();
   }catch(err){document.getElementById("src").textContent="LOAD FAILED: "+err.message}
   e.target.value="";

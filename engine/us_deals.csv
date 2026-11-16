@@ -1,0 +1,31 @@
+id,target,ticker,bidder,type,sector,date27,consideration,cash,ratio,acq_ticker,price,undisturbed,rep_prem,equity,status,note,source
+1001,Warner Bros. Discovery,WBD,Paramount Skydance,Trade,Media,2026-02-27,Cash,31.00,,,31.00,,,110000,Completed,Contested topping bid; value is enterprise value. Closed 6 Oct 2026 after state settlement.,https://dealroom.net/blog/recent-m-a-deals
+1002,Penumbra,PEN,Boston Scientific,Trade,Healthcare,2026-01-15,~73% cash / 27% stock,,,BSX,374.00,,,14500,Pending,Value is enterprise value. Expected close H2 2026.,https://dealroom.net/blog/recent-m-a-deals
+1003,AvalonBay Communities,AVB,Equity Residential,Trade,Real Estate,2026-05-21,Shares (2.793 EQR),,2.793,EQR,,,,69000,Completed,Merger of equals; combined EV. Closed 17 Aug 2026 as Vivmark Residential.,https://dealroom.net/blog/recent-m-a-deals
+1004,Dominion Energy,D,NextEra Energy,Trade,Utilities,2026-05-18,Shares (0.8138 NEE) + $360m cash,,0.8138,NEE,,,,,Pending,All-stock; expected close H2 2027.,https://dealroom.net/blog/recent-m-a-deals
+1005,Coterra Energy,CTRA,Devon Energy,Trade,Energy,2026-02-02,Shares (0.70 DVN),,0.70,DVN,,,,25000,Completed,Merger of equals. Closed 7 May 2026.,https://dealroom.net/blog/recent-m-a-deals
+1006,AES Corp,AES,GIP & EQT consortium,Private equity,Utilities,2026-03-02,Cash,15.00,,,15.00,,,10700,Pending,Equity value $10.7bn (EV $33.4bn). Expected close late 2026 / early 2027.,https://dealroom.net/blog/recent-m-a-deals
+1007,PTC,PTC,Schneider Electric,Trade,Technology,2026-10-05,Cash,205.00,,,205.00,,,22600,Pending,Expected close Q3 2027.,https://dealroom.net/blog/recent-m-a-deals
+1008,Roku,ROKU,Fox Corporation,Trade,Media,2026-06-15,$96 cash + 0.9693 FOXA,96.00,0.9693,FOXA,160.00,,,22000,Pending,Value is enterprise value. Expected close H1 2027.,https://dealroom.net/blog/recent-m-a-deals
+1009,Caesars Entertainment,CZR,Fertitta Entertainment,Private equity,Travel & Leisure,2026-05-28,Cash,31.00,,,31.00,,,17600,Pending,Take-private. Expected close 2027.,https://dealroom.net/blog/recent-m-a-deals
+1010,Element Solutions,ESI,Solstice Advanced Materials,Trade,Industrials,2026-07-06,Not stated,,,,,,,14500,Terminated,Includes net debt. Terminated 27 Aug 2026.,https://dealroom.net/blog/recent-m-a-deals
+1011,Webster Financial,WBS,Santander,Trade,Financials,2026-02-03,$48.75 cash + 2.0548 SAN ADS,48.75,2.0548,SAN,75.59,,,12200,Completed,Closed 20 Aug 2026.,https://dealroom.net/blog/recent-m-a-deals
+1012,Organon,OGN,Sun Pharma,Trade,Healthcare,2026-04-26,Cash,14.00,,,14.00,,0.24,11750,Pending,Value is enterprise value. Expected close early 2027.,https://dealroom.net/blog/recent-m-a-deals
+1013,Bio-Techne,TECH,Merck KGaA,Trade,Healthcare,2026-06-25,Cash,73.00,,,73.00,,,11300,Pending,Value is enterprise value. Expected close late 2026 / early 2027.,https://dealroom.net/blog/recent-m-a-deals
+1014,Apogee Therapeutics,APGE,AbbVie,Trade,Healthcare,2026-06-22,Cash,135.11,,,135.11,,0.49,10900,Completed,Closed 3 Sep 2026.,https://dealroom.net/blog/recent-m-a-deals
+1015,Nuvalent,NUVL,GSK,Trade,Healthcare,2026-06-15,Not stated,,,,,,,10600,Completed,Announcement date approximate (June). Closed 15 Jul 2026.,https://dealroom.net/blog/recent-m-a-deals
+1016,Crinetics Pharmaceuticals,CRNX,Vertex,Trade,Healthcare,2026-07-06,Cash,,,,,,,10000,Completed,Closed 1 Sep 2026.,https://dealroom.net/blog/recent-m-a-deals
+1017,Lantheus,LNTH,Curium,Trade,Healthcare,2026-08-03,Cash + CVR up to $12,102.50,,,102.50,,,8000,Pending,Value up to $8.0bn incl. CVR. Expected close H1 2027.,https://dealroom.net/blog/recent-m-a-deals
+1018,MarketAxess,MKTX,ICE,Trade,Financials,2026-07-30,Cash,167.00,,,167.00,,0.33,6000,Pending,Expected close H1 2027.,https://dealroom.net/blog/recent-m-a-deals
+1019,RXO,RXO,C.H. Robinson,Trade,Industrials,2026-10-05,$17.25 cash + 0.0856 CHRW,17.25,0.0856,CHRW,30.25,,,5800,Pending,Expected close H1 2027.,https://dealroom.net/blog/recent-m-a-deals
+1020,Option Care Health,OPCH,CD&R and McKesson,Private equity,Healthcare,2026-10-06,Cash,32.05,,,32.05,,0.37,5800,Pending,Expected close H1 2027.,https://dealroom.net/blog/recent-m-a-deals
+1021,Integer Holdings,ITGR,KKR,Private equity,Healthcare,2026-08-03,Cash,127.00,,,127.00,,,5700,Pending,Value is enterprise value. Expected close end-2026.,https://dealroom.net/blog/recent-m-a-deals
+1022,Synaptics,SYNA,onsemi,Trade,Technology,2026-10-01,Cash,123.00,,,123.00,,,5700,Pending,Revised terms 1 Oct (originally 25 Jun). Expected close mid-2027.,https://dealroom.net/blog/recent-m-a-deals
+1023,Catalyst Pharmaceuticals,CPRX,Angelini Pharma,Trade,Healthcare,2026-05-07,Not stated,,,,,,,4100,Completed,Closed 16 Jul 2026.,https://dealroom.net/blog/recent-m-a-deals
+1024,DigitalBridge,DBRG,SoftBank,Trade,Financials,2026-04-09,Cash,16.00,,,16.00,,,3100,Completed,Closed 30 Sep 2026.,https://dealroom.net/blog/recent-m-a-deals
+1025,Centessa Pharmaceuticals,CNTA,Eli Lilly,Trade,Healthcare,2026-03-31,Cash + CVR up to $9,38.00,,,38.00,,,6300,Completed,Closed 24 Jun 2026.,https://dealroom.net/blog/recent-m-a-deals
+1026,Baldwin Group,BWIN,Sequence and DFO,Private equity,Financials,2026-09-14,Cash,32.50,,,32.50,,,7700,Pending,Value is enterprise value. Expected close Q1 2027.,https://dealroom.net/blog/recent-m-a-deals
+1027,Masimo,MASI,Danaher,Trade,Healthcare,2026-02-17,Cash,180.00,,,180.00,130.15,0.383,9900,Pending,Value is enterprise value. Expected close H2 2026 - completion not re-checked.,https://www.insidearbitrage.com/2026/02/danaher-to-acquire-masimo-for-9-9-billion
+1028,Arcellx,ACLX,Gilead Sciences,Trade,Healthcare,2026-02-23,Cash + $5 CVR (tender offer),115.00,,,115.00,,,7800,Unconfirmed,68% premium is to 30-day VWAP. Expected close Q2 2026 - not re-checked.,https://www.businesswire.com/news/home/20260223744889/en/Gilead-Sciences-to-Acquire-Arcellx-to-Maximize-Long-term-
+1029,Silicon Labs,SLAB,Texas Instruments,Trade,Technology,2026-02-04,Cash,231.00,,,231.00,,,7500,Pending,Value is enterprise value. Expected close H1 2027.,https://investor.ti.com/node/37826
+1030,OneStream,OS,Hg,Private equity,Technology,2026-01-06,Cash,24.00,,,24.00,,0.31,6400,Unconfirmed,Expected close H1 2026 - not re-checked.,https://www.financierworldwide.com/fw-news/2026/1/13/onestream-acquired-by-hg-in-64bn-deal
