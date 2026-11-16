@@ -1,6 +1,7 @@
 date,id,price,offer,note
 2026-11-06,1008,160.52,162.3195,auto: yahoo close
-2026-11-13,1002,320.91,374.0,auto: yahoo close
+2026-11-09,1008,160.52,162.3195,auto: yahoo close
+2026-11-13,1002,320.91,319.8996,auto: yahoo close
 2026-11-13,1004,67.66,69.2707,auto: yahoo close
 2026-11-13,1006,14.91,15.0,auto: yahoo close
 2026-11-13,1007,196.0,205.0,auto: yahoo close
