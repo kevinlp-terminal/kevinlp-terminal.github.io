@@ -1,6 +1,6 @@
 date,id,price,offer,note
 2026-11-06,1008,160.52,160.6135,auto: yahoo close
-2026-11-09,1008,160.52,161.2047,auto: yahoo close
+2026-11-09,1008,160.52,157.9286,auto: yahoo close
 2026-11-13,1002,320.91,319.8996,auto: yahoo close
 2026-11-13,1004,67.66,69.2707,auto: yahoo close
 2026-11-13,1006,14.91,15.0,auto: yahoo close
@@ -59,3 +59,17 @@ date,id,price,offer,note
 2026-11-18,1022,117.67,123.0,auto: yahoo close
 2026-11-18,1026,32.15,32.5,auto: yahoo close
 2026-11-18,1029,221.33,231.0,auto: yahoo close
+2026-11-19,1002,320.21,318.7814,auto: yahoo close
+2026-11-19,1004,66.63,68.1883,auto: yahoo close
+2026-11-19,1006,15.025,15.0,auto: yahoo close
+2026-11-19,1007,195.97,205.0,auto: yahoo close
+2026-11-19,1009,29.3,31.0,auto: yahoo close
+2026-11-19,1012,13.915,14.0,auto: yahoo close
+2026-11-19,1013,72.72,73.0,auto: yahoo close
+2026-11-19,1017,102.08,102.5,auto: yahoo close
+2026-11-19,1018,165.36,167.0,auto: yahoo close
+2026-11-19,1019,28.845,29.2631,auto: yahoo close
+2026-11-19,1020,31.605,32.05,auto: yahoo close
+2026-11-19,1022,117.5,123.0,auto: yahoo close
+2026-11-19,1026,32.145,32.5,auto: yahoo close
+2026-11-19,1029,221.47,231.0,auto: yahoo close
